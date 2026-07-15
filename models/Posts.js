@@ -1,10 +1,9 @@
 const mongoose = require("mongoose")
-const userModel = require("./Users")
 
 const postSchema = mongoose.Schema(
     {
         userId : {
-            type : mongoose.Mongoose.Schema.Types.ObjectId,
+            type : mongoose.Schema.Types.ObjectId,
             ref : "users"
         },
 
@@ -18,4 +17,4 @@ const postSchema = mongoose.Schema(
 )
 
 var postModel = mongoose.model("posts",postSchema)
-module.exports = userModel
+module.exports = postModel

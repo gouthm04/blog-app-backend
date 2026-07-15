@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const userModel = require("./models/Users");
+const postModel = require("./models/Posts");
 
 const app = express();
 app.use(express.json());
@@ -94,6 +95,25 @@ app.post("/viewall", (req, res) => {
 
 });
 
+// VIEW MY POSTS
+app.post("/viewmyposts", (req, res) => {
+    let token = req.headers.token;
+    jwt.verify(token, "blogApp", (error, decoded) => {
+        if (decoded && decoded.email) {
+            postModel.find({ userId: req.body.userId })
+                .populate("userId") 
+                .then((items) => {
+                    res.json(items);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.json({ "status": "error" });
+                });
+        } else {
+            res.json({ "status": "Invalid Authentication" });
+        }
+    });
+});
 
 //SIGN IN
 app.post("/signIn",async(req,res)=>{
