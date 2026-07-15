@@ -13,6 +13,43 @@ mongoose.connect(
   "mongodb+srv://goutham:goutham123@cluster0.umdwywd.mongodb.net/blogDB",
 );
 
+//SIGN IN
+app.post("/signIn",async(req,res)=>{
+
+    let input =req.body
+    let result=userModel.find({email:req.body.email}).then(
+        (items)=>{
+            if (items.length>0) {
+
+                const passwordValidator=bcrypt.compareSync(req.body.password,items[0].password)
+                if (passwordValidator) {
+
+                    jwt.sign({email:req.body.email},"blogApp",{expiresIn:"1d"},
+                        (error,token)=>{
+                            if (error) {
+                                res.json({"status":"error","errorMessage":error})
+                                
+                            } else {
+                                res.json({"status":"success","token":token,"userId":items[0]._id})
+                                
+                            }
+                        })
+                    
+                } else {
+                    res.json({"status":"Incorrect Password"})
+                    
+                }
+                
+            } else {
+                res.json({"status":"Invalid Email Id"})
+                
+            }
+
+        }
+    )
+})
+
+//SIGN UP
 app.post("/signup", (req, res) => {
   let input = req.body;
   let hashedPassword = bcrypt.hashSync(req.body.password, 10);
