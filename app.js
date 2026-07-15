@@ -13,6 +13,27 @@ mongoose.connect(
   "mongodb+srv://goutham:goutham123@cluster0.umdwywd.mongodb.net/blogDB",
 );
 
+// CREATE A POST
+
+app.post("/create",async(req,res) => {
+    let input = req.body 
+
+    let token = req.headers.token
+
+    jwt.verify(token,"blogApp",async (error,decoded) => {
+        if(decoded && decoded.email) {
+
+            let result = new postModel(input)
+            await result.save()
+            res.json({"status":"Success"})  
+        }else {
+            res.json({"status":"Invalid Authentication"})
+
+        }
+    })
+})
+
+
 //SIGN IN
 app.post("/signIn",async(req,res)=>{
 
