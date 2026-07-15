@@ -13,6 +13,88 @@ mongoose.connect(
   "mongodb+srv://goutham:goutham123@cluster0.umdwywd.mongodb.net/blogDB",
 );
 
+// CREATE A POST
+
+app.post("/create",async(req,res) => {
+    let input = req.body 
+
+    let token = req.headers.token
+
+    jwt.verify(token,"blogApp",async (error,decoded) => {
+        if(decoded && decoded.email) {
+
+            let result = new postModel(input)
+            await result.save()
+            res.json({"status":"Success"})  
+        }else {
+            res.json({"status":"Invalid Authentication"})
+
+        }
+    })
+})
+
+//VIEW MY POSTS
+
+app.post("/viewmypost", (req, res) => {
+
+    let input  = req.body 
+    let token = req.headers.token;
+
+    jwt.verify(token, "blogApp", (error, decoded) => {
+
+        if (decoded && decoded.email) {
+
+            postModel.find(input)
+                .then((items) => {
+                    res.json(items);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.json({ "status": error });
+                });
+
+        } else {
+
+            res.json({ "status": "Invalid Authentication" });
+
+        }
+
+    });
+
+});
+
+
+
+// VIEW ALL POSTS
+
+app.post("/viewall", (req, res) => {
+
+    let token = req.headers.token;
+
+    jwt.verify(token, "blogApp", (error, decoded) => {
+
+        if (decoded && decoded.email) {
+
+            postModel.find()
+                .then((items) => {
+                    res.json(items);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.json({ "status": "error" });
+                });
+
+        } else {
+
+            res.json({ "status": "Invalid Authentication" });
+
+        }
+
+    });
+
+});
+
+
 //SIGN IN
 app.post("/signIn",async(req,res)=>{
 
