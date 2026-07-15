@@ -1,52 +1,43 @@
-const Express  = require("express")
-const Cors  = require("cors")
-const Mongoose  = require("mongoose")
-const jwt  = require("jsonwebtoken")
-const bcrypt  = require("bcrypt")
-const User = require("./models/User")
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const userModel = require("./models/Users");
 
-let  app = Express()
-app.use(Express.json())
-app.use(Cors())
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-// MongoDB Connection
-Mongoose.connect("mongodb+srv://user:pass@cluster.mongodb.net/BlogAppDB?retryWrites=true&w=majority") // Replace with actual URI
-    .then(() => console.log("Connected to MongoDB"))
-    .catch((err) => console.log("MongoDB connection error:", err));
+mongoose.connect(
+  "mongodb+srv://goutham:goutham123@cluster0.umdwywd.mongodb.net/blogDB",
+);
 
-app.get("/", (req,res) => {
-    res.send("hellooo")
-})
+app.post("/signup", (req, res) => {
+  let input = req.body;
+  let hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  req.body.password = hashedPassword;
 
-// Signup Route
-app.post("/signup", async (req, res) => {
-    try {
-        const { name, phone, email, password } = req.body;
-
-        // Check if email already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.json("Email already exists");
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
-        const newUser = new User({
-            name,
-            phone,
-            email,
-            password: hashedPassword
-        });
-
-        await newUser.save();
-        res.json("Success");
-    } catch (err) {
-        res.status(500).json({ error: "Signup failed" });
-    }
+  userModel
+    .find({ email: req.body.email })
+    .then((items) => {
+      if (items.length > 0) {
+        res.json({ status: "Email ID already exists " });
+      } else {
+        let result = new userModel(input);
+        result.save();
+        res.json({ status: "success" });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
-app.listen(3000,() => {
-    console.log("Server Started")
-})
+app.get("/test", (req, res) => {
+  res.send("hello");
+});
+
+app.listen(3000, () => {
+  console.log("Server Started");
+});
